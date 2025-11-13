@@ -9,7 +9,7 @@ def load_iris_data():
     """Load and return the Iris dataset as pandas DataFrame."""
     iris = load_iris()
     df = pd.DataFrame(iris.data, columns=iris.feature_names)
-    df['target'] = iris.target
+    df["target"] = iris.target
     return df, iris.target_names
 
 

@@ -2,19 +2,20 @@
 
 import click
 import numpy as np
+
 from .model import IrisClassifier
 
 
 @click.command()
-@click.option('--model-path', default='models/iris_model.pkl',
-              help='Path to the trained model')
-@click.option('--features', required=True,
-              help='Comma-separated feature values')
+@click.option(
+    "--model-path", default="models/iris_model.pkl", help="Path to the trained model"
+)
+@click.option("--features", required=True, help="Comma-separated feature values")
 def predict(model_path, features):
     """Make predictions using the trained model."""
     try:
         # Parse features
-        feature_values = [float(x.strip()) for x in features.split(',')]
+        feature_values = [float(x.strip()) for x in features.split(",")]
         if len(feature_values) != 4:
             raise ValueError("Expected 4 features")
 
@@ -27,7 +28,7 @@ def predict(model_path, features):
         prediction = classifier.predict(X)
 
         # Map prediction to class name
-        class_names = ['setosa', 'versicolor', 'virginica']
+        class_names = ["setosa", "versicolor", "virginica"]
         predicted_class = class_names[prediction[0]]
 
         click.echo(f"Input features: {feature_values}")
@@ -43,5 +44,5 @@ def predict(model_path, features):
         click.echo(f"Error: {e}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     predict()

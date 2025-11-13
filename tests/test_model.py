@@ -1,9 +1,10 @@
 """Tests for the ML model."""
 
-import pytest
 import numpy as np
-from src.model import IrisClassifier
+import pytest
+
 from src.data_loader import load_iris_data, split_data
+from src.model import IrisClassifier
 
 
 def test_iris_classifier_initialization():
@@ -15,8 +16,8 @@ def test_iris_classifier_initialization():
 def test_iris_classifier_training():
     """Test model training."""
     df, _ = load_iris_data()
-    X = df.drop('target', axis=1)
-    y = df['target']
+    X = df.drop("target", axis=1)
+    y = df["target"]
     X_train, X_test, y_train, y_test = split_data(X, y)
 
     classifier = IrisClassifier()
@@ -28,8 +29,8 @@ def test_iris_classifier_training():
 def test_iris_classifier_prediction():
     """Test model prediction."""
     df, _ = load_iris_data()
-    X = df.drop('target', axis=1)
-    y = df['target']
+    X = df.drop("target", axis=1)
+    y = df["target"]
     X_train, X_test, y_train, y_test = split_data(X, y)
 
     classifier = IrisClassifier()

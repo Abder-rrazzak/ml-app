@@ -1,8 +1,8 @@
 """Machine learning model definitions."""
 
+import joblib
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report
-import joblib
 
 
 class IrisClassifier:
