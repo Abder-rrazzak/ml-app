@@ -1,0 +1,132 @@
+# Fichiers et répertoires à ignorer lors de la construction Docker
+# Optimise la taille de l'image et améliore la sécurité
+
+# Environnements virtuels Python
+venv/
+.venv/
+env/
+.env/
+
+# Fichiers de cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Tests et couverture
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Environnements et configuration
+.env
+.venv
+.ENV
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+docs/_build/
+site/
+
+# Logs
+logs/
+*.log
+
+# Données temporaires
+tmp/
+temp/
+
+# MLflow
+mlruns/
+
+# Modèles (peuvent être volumineux)
+models/*.pkl
+models/*.joblib
+
+# Données (peuvent être volumineuses)
+data/raw/*
+data/processed/*
+
+# Fichiers de développement
+.pre-commit-config.yaml
+.editorconfig
+Makefile
+docker-compose.yml
+scripts/
+
+# Fichiers de test
+tests/
+pytest.ini
+.pytest.ini
+
+# Documentation de développement
+README.md
+CHANGELOG.md
+CONTRIBUTING.md
+
+# Fichiers de configuration de développement
+pyproject.toml
+setup.py
+setup.cfg
+requirements-dev.txt
+
+# Certificats et clés (sécurité)
+*.pem
+*.key
+*.crt
+*.csr
+
+# Fichiers de sauvegarde
+*.bak
+*.backup
+*.old

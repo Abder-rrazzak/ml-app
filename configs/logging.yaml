@@ -1,0 +1,113 @@
+# Configuration du logging pour l'application ML
+# Utilise le format YAML pour une configuration claire et maintenable
+
+version: 1
+disable_existing_loggers: false
+
+# Définition des formatters pour les messages de log
+formatters:
+  # Formatter détaillé pour les fichiers de log
+  detailed:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(module)s - %(funcName)s:%(lineno)d - %(message)s'
+    datefmt: '%Y-%m-%d %H:%M:%S'
+  
+  # Formatter simple pour la console
+  simple:
+    format: '%(levelname)s - %(name)s - %(message)s'
+  
+  # Formatter JSON pour les logs structurés (production)
+  json:
+    format: '{"timestamp": "%(asctime)s", "level": "%(levelname)s", "logger": "%(name)s", "module": "%(module)s", "function": "%(funcName)s", "line": %(lineno)d, "message": "%(message)s"}'
+    datefmt: '%Y-%m-%dT%H:%M:%S'
+
+# Définition des handlers pour diriger les logs
+handlers:
+  # Handler pour la sortie console
+  console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: simple
+    stream: ext://sys.stdout
+  
+  # Handler pour les logs généraux dans un fichier
+  file_handler:
+    class: logging.handlers.RotatingFileHandler
+    level: DEBUG
+    formatter: detailed
+    filename: logs/app.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 5
+    encoding: utf8
+  
+  # Handler pour les erreurs dans un fichier séparé
+  error_file_handler:
+    class: logging.handlers.RotatingFileHandler
+    level: ERROR
+    formatter: detailed
+    filename: logs/errors.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 5
+    encoding: utf8
+  
+  # Handler pour les logs ML/MLflow
+  mlflow_handler:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: json
+    filename: logs/mlflow.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 3
+    encoding: utf8
+  
+  # Handler pour les logs de l'API
+  api_handler:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: json
+    filename: logs/api.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 3
+    encoding: utf8
+
+# Configuration des loggers spécifiques
+loggers:
+  # Logger pour le module principal de l'application
+  src:
+    level: DEBUG
+    handlers: [console, file_handler, error_file_handler]
+    propagate: false
+  
+  # Logger pour l'API FastAPI
+  src.api:
+    level: INFO
+    handlers: [console, api_handler, error_file_handler]
+    propagate: false
+  
+  # Logger pour MLflow
+  mlflow:
+    level: INFO
+    handlers: [mlflow_handler]
+    propagate: false
+  
+  # Logger pour les requêtes HTTP (uvicorn)
+  uvicorn.access:
+    level: INFO
+    handlers: [api_handler]
+    propagate: false
+  
+  # Logger pour les erreurs uvicorn
+  uvicorn.error:
+    level: INFO
+    handlers: [console, error_file_handler]
+    propagate: false
+  
+  # Logger pour scikit-learn (réduire la verbosité)
+  sklearn:
+    level: WARNING
+    handlers: [file_handler]
+    propagate: false
+
+# Configuration du logger racine
+root:
+  level: INFO
+  handlers: [console, file_handler, error_file_handler]

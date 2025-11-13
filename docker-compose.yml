@@ -1,0 +1,153 @@
+# Docker Compose pour orchestrer les services ML
+# Permet de lancer facilement l'API, MLflow, et les outils de développement
+
+version: '3.8'
+
+services:
+  # Service principal : API ML
+  ml-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production  # Utiliser le stage de production
+    container_name: iris-ml-api
+    ports:
+      - "8000:8000"  # Port de l'API FastAPI
+    environment:
+      # Configuration de l'API
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - MODEL_PATH=/app/models/iris_model.pkl
+      # Configuration MLflow
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    volumes:
+      # Monter le répertoire des modèles pour la persistance
+      - ./models:/app/models:ro  # Read-only pour la sécurité
+      # Logs de l'application
+      - ./logs:/app/logs
+    depends_on:
+      - mlflow
+    networks:
+      - ml-network
+    restart: unless-stopped
+    healthcheck:
+      # Vérification de santé de l'API
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Service MLflow pour le tracking des expériences
+  mlflow:
+    image: python:3.11-slim
+    container_name: iris-mlflow
+    ports:
+      - "5000:5000"  # Interface web MLflow
+    environment:
+      - MLFLOW_BACKEND_STORE_URI=sqlite:///mlflow/mlflow.db
+      - MLFLOW_DEFAULT_ARTIFACT_ROOT=/mlflow/artifacts
+    volumes:
+      # Persistance des données MLflow
+      - ./mlruns:/mlflow
+    working_dir: /mlflow
+    command: >
+      bash -c "
+        pip install mlflow[extras] &&
+        mlflow server 
+          --backend-store-uri sqlite:///mlflow/mlflow.db 
+          --default-artifact-root /mlflow/artifacts 
+          --host 0.0.0.0 
+          --port 5000
+      "
+    networks:
+      - ml-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Service de développement avec Jupyter
+  jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development  # Utiliser le stage de développement
+    container_name: iris-jupyter
+    ports:
+      - "8888:8888"  # Port Jupyter
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - JUPYTER_TOKEN=iris-ml-token  # Token pour l'accès sécurisé
+    volumes:
+      # Monter tout le projet pour le développement
+      - .:/app
+      # Persistance des notebooks
+      - ./notebooks:/app/notebooks
+    working_dir: /app
+    command: >
+      bash -c "
+        pip install jupyter jupyterlab &&
+        jupyter lab 
+          --ip=0.0.0.0 
+          --port=8888 
+          --no-browser 
+          --allow-root 
+          --NotebookApp.token=iris-ml-token
+      "
+    networks:
+      - ml-network
+    restart: unless-stopped
+    profiles:
+      - dev  # Profil pour le développement uniquement
+
+  # Service de monitoring avec Prometheus (optionnel)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: iris-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - ml-network
+    restart: unless-stopped
+    profiles:
+      - monitoring  # Profil pour le monitoring
+
+  # Service Grafana pour la visualisation (optionnel)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: iris-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./configs/grafana:/etc/grafana/provisioning
+    networks:
+      - ml-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+# Réseau pour la communication entre services
+networks:
+  ml-network:
+    driver: bridge
+    name: iris-ml-network
+
+# Volumes pour la persistance des données
+volumes:
+  grafana-storage:
+    name: iris-grafana-storage

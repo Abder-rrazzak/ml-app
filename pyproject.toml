@@ -1,0 +1,194 @@
+# Configuration moderne Python selon PEP 518/621
+# Ce fichier remplace setup.py et configure tous les outils de développement
+
+[build-system]
+# Système de build moderne utilisant setuptools
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+# Métadonnées du projet selon PEP 621
+name = "ml-app"
+version = "1.0.0"
+description = "Production-ready ML application for Iris classification"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Abder Rrazzak", email = "abder.rrazzak@example.com"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+requires-python = ">=3.9"
+
+# Dépendances principales du projet
+dependencies = [
+    "numpy>=1.21.0",
+    "pandas>=1.3.0",
+    "scikit-learn>=1.0.0",
+    "click>=8.0.0",
+    "joblib>=1.0.0",
+    "pydantic>=2.0.0",
+    "fastapi>=0.100.0",
+    "uvicorn[standard]>=0.20.0",
+    "mlflow>=2.0.0",
+]
+
+# Dépendances optionnelles groupées par usage
+[project.optional-dependencies]
+# Outils de développement
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-xdist>=3.0.0",
+    "pytest-mock>=3.10.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+    "bandit>=1.7.0",
+    "safety>=2.3.0",
+    "pre-commit>=3.0.0",
+]
+# Outils de documentation
+docs = [
+    "sphinx>=6.0.0",
+    "sphinx-rtd-theme>=1.2.0",
+    "mkdocs>=1.4.0",
+    "mkdocs-material>=9.0.0",
+    "pdoc>=13.0.0",
+]
+# Outils de visualisation et notebooks
+viz = [
+    "matplotlib>=3.5.0",
+    "seaborn>=0.11.0",
+    "jupyter>=1.0.0",
+    "plotly>=5.0.0",
+]
+# Outils MLOps
+mlops = [
+    "wandb>=0.15.0",
+    "dvc>=3.0.0",
+    "hydra-core>=1.3.0",
+]
+
+# Points d'entrée CLI pour installer des commandes globales
+[project.scripts]
+ml-train = "src.train:train"
+ml-predict = "src.predict:predict"
+ml-api = "src.api:main"
+
+# URLs du projet
+[project.urls]
+Homepage = "https://github.com/abder-rrazzak/ml-app"
+Documentation = "https://abder-rrazzak.github.io/ml-app/"
+Repository = "https://github.com/abder-rrazzak/ml-app.git"
+Issues = "https://github.com/abder-rrazzak/ml-app/issues"
+
+# Configuration de setuptools pour la découverte des packages
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+# Configuration Black (formatage automatique du code)
+[tool.black]
+line-length = 88  # Longueur de ligne standard
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # Exclure les répertoires générés
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+# Configuration isort (tri automatique des imports)
+[tool.isort]
+profile = "black"  # Compatible avec Black
+multi_line_output = 3
+line_length = 88
+known_first_party = ["src"]
+known_third_party = ["numpy", "pandas", "sklearn", "click", "fastapi"]
+
+# Configuration pytest (framework de tests)
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = [
+    "-ra",  # Afficher résumé de tous les tests
+    "--strict-markers",  # Markers stricts
+    "--strict-config",  # Configuration stricte
+    "--cov=src",  # Couverture du code source
+    "--cov-report=term-missing",  # Rapport de couverture détaillé
+    "--cov-report=html:htmlcov",  # Rapport HTML
+    "--cov-report=xml",  # Rapport XML pour CI/CD
+]
+testpaths = ["tests"]  # Répertoire des tests
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+# Configuration MyPy (vérification de types)
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+# Ignorer les imports sans stubs de types
+[[tool.mypy.overrides]]
+module = [
+    "sklearn.*",
+    "joblib.*",
+    "mlflow.*",
+]
+ignore_missing_imports = true
+
+# Configuration Bandit (analyse de sécurité)
+[tool.bandit]
+exclude_dirs = ["tests", "venv", ".venv"]
+skips = ["B101"]  # Ignorer les assert dans les tests
+
+# Configuration de couverture de code
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/venv/*",
+    "*/.venv/*",
+    "*/build/*",
+    "*/dist/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]

@@ -1,0 +1,56 @@
+# Configuration EditorConfig pour maintenir la cohérence du style de code
+# Supporté par la plupart des éditeurs (VS Code, PyCharm, Vim, etc.)
+
+# Configuration racine - s'applique à tous les fichiers
+root = true
+
+# Configuration par défaut pour tous les fichiers
+[*]
+# Encodage des caractères
+charset = utf-8
+# Type de fin de ligne (LF pour Unix/Linux/macOS)
+end_of_line = lf
+# Insérer une ligne vide à la fin du fichier
+insert_final_newline = true
+# Supprimer les espaces en fin de ligne
+trim_trailing_whitespace = true
+# Indentation avec des espaces (pas de tabulations)
+indent_style = space
+# Taille d'indentation par défaut
+indent_size = 2
+
+# Configuration spécifique pour les fichiers Python
+[*.py]
+# Indentation de 4 espaces (standard PEP 8)
+indent_size = 4
+# Longueur de ligne maximale (cohérent avec Black et flake8)
+max_line_length = 88
+
+# Configuration pour les fichiers de configuration Python
+[*.{toml,cfg,ini}]
+indent_size = 4
+
+# Configuration pour les fichiers YAML
+[*.{yml,yaml}]
+indent_size = 2
+
+# Configuration pour les fichiers JSON
+[*.json]
+indent_size = 2
+
+# Configuration pour les fichiers Markdown
+[*.md]
+# Ne pas supprimer les espaces en fin de ligne (nécessaires pour les sauts de ligne)
+trim_trailing_whitespace = false
+
+# Configuration pour les Makefiles (doivent utiliser des tabulations)
+[Makefile]
+indent_style = tab
+
+# Configuration pour les fichiers Docker
+[Dockerfile*]
+indent_size = 4
+
+# Configuration pour les scripts shell
+[*.{sh,bash}]
+indent_size = 2

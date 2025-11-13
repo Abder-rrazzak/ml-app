@@ -1,0 +1,99 @@
+# Configuration des hooks pre-commit pour maintenir la qualité du code
+# Ces hooks s'exécutent automatiquement avant chaque commit Git
+
+repos:
+  # Hooks génériques pour tous les fichiers
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      # Supprime les espaces en fin de ligne
+      - id: trailing-whitespace
+      # Assure qu'il y a une ligne vide à la fin des fichiers
+      - id: end-of-file-fixer
+      # Vérifie la syntaxe YAML
+      - id: check-yaml
+      # Vérifie la syntaxe JSON
+      - id: check-json
+      # Vérifie qu'il n'y a pas de conflits de merge
+      - id: check-merge-conflict
+      # Vérifie que les fichiers Python sont syntaxiquement corrects
+      - id: check-ast
+      # Empêche les commits sur la branche main
+      - id: no-commit-to-branch
+        args: ['--branch', 'main', '--branch', 'master']
+
+  # Formatage automatique du code Python avec Black
+  - repo: https://github.com/psf/black
+    rev: 23.7.0
+    hooks:
+      - id: black
+        language_version: python3
+        # Arguments pour Black (cohérent avec pyproject.toml)
+        args: [--line-length=88]
+
+  # Tri automatique des imports avec isort
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        # Configuration pour être compatible avec Black
+        args: [--profile=black, --line-length=88]
+
+  # Linting du code Python avec flake8
+  - repo: https://github.com/pycqa/flake8
+    rev: 6.0.0
+    hooks:
+      - id: flake8
+        # Configuration flake8 (longueur de ligne cohérente)
+        args: [--max-line-length=88, --extend-ignore=E203,W503]
+        # Dépendances supplémentaires pour flake8
+        additional_dependencies:
+          - flake8-docstrings  # Vérification des docstrings
+          - flake8-bugbear     # Détection de bugs courants
+
+  # Vérification de types avec MyPy
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.5.1
+    hooks:
+      - id: mypy
+        # Fichiers à vérifier
+        files: ^src/
+        # Dépendances nécessaires pour MyPy
+        additional_dependencies:
+          - types-requests
+          - pydantic
+
+  # Analyse de sécurité avec Bandit
+  - repo: https://github.com/pycqa/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        # Exclure les tests des vérifications de sécurité
+        args: [-x, tests/]
+
+  # Vérification des vulnérabilités dans les dépendances
+  - repo: https://github.com/Lucas-C/pre-commit-hooks-safety
+    rev: v1.3.2
+    hooks:
+      - id: python-safety-dependencies-check
+        # Ignorer certaines vulnérabilités connues et acceptées
+        args: [--ignore=51457]
+
+  # Hooks spécifiques aux notebooks Jupyter
+  - repo: https://github.com/nbQA-dev/nbQA
+    rev: 1.7.0
+    hooks:
+      # Formatage des notebooks avec Black
+      - id: nbqa-black
+        additional_dependencies: [black==23.7.0]
+      # Tri des imports dans les notebooks
+      - id: nbqa-isort
+        additional_dependencies: [isort==5.12.0]
+        args: [--profile=black]
+
+  # Nettoyage des outputs des notebooks (pour éviter les conflits Git)
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.6.1
+    hooks:
+      - id: nbstripout
+        # Nettoie automatiquement les outputs des notebooks
